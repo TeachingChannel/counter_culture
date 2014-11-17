@@ -95,8 +95,8 @@ module CounterCulture
           # if a delta column is provided use SUM, otherwise use COUNT
           count_select = hash[:delta_column] ? "SUM(COALESCE(#{self_table_name}.#{hash[:delta_column]},0))" : "COUNT(#{self_table_name}.#{self.primary_key})"
 
-          # respect the deleted_at column if it exists
-          query = query.where("#{self.table_name}.deleted_at IS NULL") if self.column_names.include?('deleted_at')
+          # respect paranoia gem
+          query = query.where(self.table_name => { deleted_at: paranoia_sentinel_value }) if try(:paranoid?)
 
           column_names = hash[:column_names] || {nil => hash[:counter_cache_name]}
           raise ":column_names must be a Hash of conditions and column names" unless column_names.is_a?(Hash)
